@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    descriptive_statistics (2.5.1)
+    dotenv (2.8.1)
+    mqtt (0.5.0)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  descriptive_statistics
+  dotenv
+  mqtt
+
+BUNDLED WITH
+   2.2.29
