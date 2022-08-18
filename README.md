@@ -15,14 +15,13 @@ Most of these weather stations publish their data and you can get them from an A
 
 ## Setup
 You will need to have Home Assistant and MQTT set up already, as well as a machine you can run Ruby on (like a Raspberry Pi).
-<!--- TODO: Add project name to git clone --->
-1. `git clone`
-<!--- TODO: Confirm what packages need to be installed on a Raspberry Pi --->
-2. `sudo apt install ruby-full build-essential`
-3. `bundle install`
+
+### Configuration
+1. `git clone https://github.com/StephenWetzel/home-assistant-weather-mqtt.git`
+2. `cd home-assistant-weather-mqtt`
 4. Go to [https://ambientweather.net/](https://ambientweather.net/) and see what weather stations are in the area you want to monitor.  I'd recommend choosing an area with between 10 and 100 stations, depending on how densely populated your area is.
 5. Us a tool like [this](http://bboxfinder.com/) to draw a rectangle over the area you want monitor.  Get the latitude and longitude for the south west (bottom left) and north east (top right) corners.
-6. Put those coordinates and your MQTT broker details in a `.env` file in the same folder as the Ruby script.
+6. Put those coordinates and your MQTT broker details in an `.env` file in the same folder as the Ruby script.
 ```
 MQTT_BROKER_HOST = '192.168.1.123'
 MQTT_USERNAME = 'my_mqtt_user'
@@ -33,8 +32,30 @@ NORTH_EAST_LAT = '-75.133610'
 NORTH_EAST_LONG = '39.970345'
 ```
 
-7. Run with `ruby local_to_mqtt.rb`
-8. Check in Home Assistant for the new entities, which should appear as long as you have [MQTT discovery enabled](https://www.home-assistant.io/docs/mqtt/discovery/).
+### If you need Ruby
+You have two paths here, either use the system Ruby or use something like [`rbenv`](https://github.com/rbenv/rbenv) to do it "the right way" which will allow you to install different versions of Ruby for different projects.  If you have no intentions of using Ruby outside of this script, and just want it to work it'll be easier to use the system Ruby, but just know that you'll have to run everything with `sudo` and you run the risk of messing something up on your system.
+
+### Using rbenv
+This is your first option
+1. `sudo apt install rbenv`
+1. `rbenv init`
+1. `rbenv install -l` to see the available versions of Ruby
+1. `rbenv install 2.7.1` You should be fine with a newer version, but this is what I'm using as I write these directions.  This takes awhile to run on a Raspberry Pi
+1. `rbenv local 2.7.1` ensure you are inside the project directory
+1. Confirm you have the correct version with `ruby --version`
+1. `gem install bundler`
+1. `bundle install`
+
+### Using sudo
+This is the second option
+1. `sudo apt install ruby-full`
+1. `sudo gem install bundler`
+1. `sudo bundle install`
+
+### Running
+1. Run with `ruby local_to_mqtt.rb`, you'll have to use `sudo` if you used the system Ruby above
+1. Check in Home Assistant for the new entities, which should appear as long as you have [MQTT discovery enabled](https://www.home-assistant.io/docs/mqtt/discovery/)
+1. Figure out how you want to run the script automatically on boot.  If you set it up as `sudo` you can just add it here: `sudo nano /etc/rc.local`.  If you're running it with `rbenv` you can run it as your user on boot by putting it in your crontab and using the special keyword `@reboot` instead of the typical time pattern.  However, you'll run into the problem that your `rbenv` version of Ruby isn't available in cron.  You can one of the solutions [noted in this stack overflow answer](https://stackoverflow.com/questions/8434922/how-to-run-a-ruby-script-using-rbenv-with-cron) to get around this.
 
 ## Options
 Running with `--help` or `-h` will show the available command line options.  All of these can be left off as they have default values.
