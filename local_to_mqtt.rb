@@ -14,7 +14,7 @@ options = {
   # Defaults
   limit: 100,
   update_frequency: 60,
-  max_age: 60,
+  max_age: 180,
   discovery_prefix: 'homeassistant',
   debug: false,
   no_send: false
@@ -79,9 +79,6 @@ end
 
 ### Main Loop ###
 begin
-  # TODO: Should this connect just be down in the loop that sends the update?
-  # Will that make it more robust?  How to detect when we lose a connection?
-  
   while true
     request = Net::HTTP::Get.new(uri.request_uri)
     response = http.request(request)
