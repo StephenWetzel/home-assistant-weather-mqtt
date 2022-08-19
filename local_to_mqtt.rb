@@ -19,7 +19,8 @@ options = {
   max_age: 180,
   discovery_prefix: 'homeassistant',
   debug: false,
-  no_send: false
+  no_send: false,
+  error_limit: 0
 }
 OptionParser.new do |opts|
   opts.banner = "Usage: local_to_mqtt.rb [options]"
@@ -30,6 +31,7 @@ OptionParser.new do |opts|
   opts.on('-p PREFIX', '--discovery_prefix PREFIX', 'The home assistant discovery prefix') { |v| options[:discovery_prefix] = v }
   opts.on('-d [FLAG]', '--debug [FLAG]', TrueClass, 'Set to true to print debug logs to console while running') { |v| options[:debug] = v.nil? ? true : v }
   opts.on('-n [FLAG]', '--no_send [FLAG]', TrueClass, 'Set to true to prevent sending data to MQTT') { |v| options[:no_send] = v.nil? ? true : v }
+  opts.on('-e ERROR_LIMIT', '--error_limit ERROR_LIMIT', Integer, 'How many consecutive HTTP errors before aborting (0 for no limit)') { |v| options[:error_limit] = v }
 end.parse!
 
 ### Setup ###
@@ -70,6 +72,8 @@ client.connect do |c|
   end
 end
 
+error_count = 0
+
 ### Main Loop ###
 begin
   loop do
@@ -106,14 +110,20 @@ begin
       end
     end
 
+    error_count = 0
+    sleep(options[:update_frequency])
+  rescue SocketError => e
+    error_count += 1
+    puts "#{e.class} - #{e.message} ##{error_count}" if options[:debug]
+    raise SocketError, "Too many HTTP errors" if options[:error_limit].positive? && error_count >= options[:error_limit]
     sleep(options[:update_frequency])
   end
 rescue Interrupt => e
-  puts "Interrupt: #{e}" if options[:debug]
+  puts "Interrupt: #{e.class}\n#{e.message}\n#{e.backtrace.join("\n")}" if options[:debug]
 rescue SignalException => e
-  puts "SignalException: #{e}" if options[:debug]
+  puts "SignalException: #{e.class}\n#{e.message}\n#{e.backtrace.join("\n")}" if options[:debug]
 rescue StandardError => e
-  puts "Exception: #{e}" if options[:debug]
+  puts "Exception: #{e.class}\n#{e.message}\n#{e.backtrace.join("\n")}" if options[:debug]
 ensure
   puts "ensure" if options[:debug]
   # Send 'offline' as our status if the script is terminated
