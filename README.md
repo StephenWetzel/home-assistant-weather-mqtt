@@ -72,14 +72,39 @@ Usage: local_to_mqtt.rb [options]
 
 
 ## Changing what data you collect
-By default it will monitor UV (the median, 90th percentile, and max values), and the median "feels like" temperature.  What it's monitoring can be easily changed by opening the script up and modifying the `keys_to_collect` variable near the top.  Here is what it looks like by default:
+By default it will monitor UV (the median, 90th percentile, and max values), and the median "feels like" temperature.  What it's monitoring can be changed by modifying the `keys_to_collect.json` config file.  Here is what it looks like by default:
 ```
-keys_to_collect = [
-  {aw_key_name: :uv, percentile: 100, unit: 'UV index', device_class: 'illuminance', mqtt_name: 'area_uv_max'},
-  {aw_key_name: :uv, percentile: 90, unit: 'UV index', device_class: 'illuminance', mqtt_name: 'area_uv_90_percentile'},
-  {aw_key_name: :uv, percentile: 50, unit: 'UV index', device_class: 'illuminance', mqtt_name: 'area_uv_median'},
-  {aw_key_name: :feelsLike, percentile: 50, unit: '°F', device_class: 'temperature', mqtt_name: 'area_feels_like_median'}
+[
+  {
+    "aw_key_name": "uv",
+    "percentile": 100,
+    "unit": "UV index",
+    "device_class": "illuminance",
+    "mqtt_name": "area_uv_max"
+  },
+  {
+    "aw_key_name": "uv",
+    "percentile": 90,
+    "unit": "UV index",
+    "device_class": "illuminance",
+    "mqtt_name": "area_uv_90_percentile"
+  },
+  {
+    "aw_key_name": "uv",
+    "percentile": 50,
+    "unit": "UV index",
+    "device_class": "illuminance",
+    "mqtt_name": "area_uv_median"
+  },
+  {
+    "aw_key_name": "feelsLike",
+    "percentile": 50,
+    "unit": "°F",
+    "device_class": "temperature",
+    "mqtt_name": "area_feels_like_median"
+  }
 ]
+
 ```
 
 The easiest way to see what data is available is to just take a look at the API for your area.  [This is the endpoint this script uses](https://lightning.ambientweather.net/devices?$publicBox[0][0]=-75.193434&$publicBox[0][1]=39.928695&$publicBox[1][0]=-75.133610&$publicBox[1][1]=39.970345&$limit=100).
@@ -116,7 +141,12 @@ Let's say you want to add collect wind speed.  Looking at the above example we c
 
 To monitor instantaneous wind speed you'd add this row to the `keys_to_collect` variable:
 ```
-  {aw_key_name: :windspeedmph, percentile: 50, unit: 'mph', mqtt_name: 'area_wind_speed'},
+  {
+    "aw_key_name": "windspeedmph",
+    "percentile": 50,
+    "unit": "mph",
+    "mqtt_name": "area_wind_speed"
+  }
 ```
 
 Where:
