@@ -1,0 +1,12 @@
+
+# Monitors are wide, and horizontal scroll works fine
+Layout/LineLength:
+  Enabled: false
+
+# There's no performance difference, I like single quotes for short strings, and double for long
+Style/StringLiterals:
+  Enabled: false
+
+# I don't think these are always needed
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
