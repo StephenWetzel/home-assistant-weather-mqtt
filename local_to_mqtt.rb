@@ -11,6 +11,7 @@ require 'mqtt'
 Dotenv.load
 Dotenv.require_keys('MQTT_BROKER_HOST', 'MQTT_USERNAME', 'MQTT_PASSWORD', 'SOUTH_WEST_LAT', 'SOUTH_WEST_LONG', 'NORTH_EAST_LAT', 'NORTH_EAST_LONG')
 
+### Configuration ###
 options = {
   # Defaults
   limit: 100,
@@ -31,17 +32,8 @@ OptionParser.new do |opts|
   opts.on('-n [FLAG]', '--no_send [FLAG]', TrueClass, 'Set to true to prevent sending data to MQTT') { |v| options[:no_send] = v.nil? ? true : v }
 end.parse!
 
-### Configuration ###
-# TODO: Document attributes in this array
-# TODO: Move this config into a JSON file
-keys_to_collect = [
-  { aw_key_name: :uv, percentile: 100, unit: 'UV index', device_class: 'illuminance', mqtt_name: 'area_uv_max' },
-  { aw_key_name: :uv, percentile: 90, unit: 'UV index', device_class: 'illuminance', mqtt_name: 'area_uv_90_percentile' },
-  { aw_key_name: :uv, percentile: 50, unit: 'UV index', device_class: 'illuminance', mqtt_name: 'area_uv_median' },
-  { aw_key_name: :feelsLike, percentile: 50, unit: '°F', device_class: 'temperature', mqtt_name: 'area_feels_like_median' }
-]
-
 ### Setup ###
+keys_to_collect = JSON.parse(File.read('keys_to_collect.json'), symbolize_names: true)
 # Weather API HTTP connection
 url = "https://lightning.ambientweather.net/devices?$publicBox[0][0]=#{ENV['SOUTH_WEST_LAT']}&$publicBox[0][1]=#{ENV['SOUTH_WEST_LONG']}&$publicBox[1][0]=#{ENV['NORTH_EAST_LAT']}&$publicBox[1][1]=#{ENV['NORTH_EAST_LONG']}&$limit=#{options[:limit]}"
 # TODO: What if this returns no stations/is malformed?
@@ -95,7 +87,7 @@ begin
 
       # Get all the values we will analyze from this weather station, store them in arrays for later
       keys_to_collect.map { |e| e[:aw_key_name] }.uniq.each do |aw_key_name|
-        values[aw_key_name].append(station[:lastData][aw_key_name]) unless station[:lastData][aw_key_name].nil?
+        values[aw_key_name].append(station[:lastData][aw_key_name.to_sym]) unless station[:lastData][aw_key_name.to_sym].nil?
       end
 
       puts "#{station[:_id]} #{station[:info][:name]} #{data_dt} #{station[:lastData][:tempf]}" if options[:debug]

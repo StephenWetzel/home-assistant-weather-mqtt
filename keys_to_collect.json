@@ -1,0 +1,30 @@
+[
+  {
+    "aw_key_name": "uv",
+    "percentile": 100,
+    "unit": "UV index",
+    "device_class": "illuminance",
+    "mqtt_name": "area_uv_max"
+  },
+  {
+    "aw_key_name": "uv",
+    "percentile": 90,
+    "unit": "UV index",
+    "device_class": "illuminance",
+    "mqtt_name": "area_uv_90_percentile"
+  },
+  {
+    "aw_key_name": "uv",
+    "percentile": 50,
+    "unit": "UV index",
+    "device_class": "illuminance",
+    "mqtt_name": "area_uv_median"
+  },
+  {
+    "aw_key_name": "feelsLike",
+    "percentile": 50,
+    "unit": "°F",
+    "device_class": "temperature",
+    "mqtt_name": "area_feels_like_median"
+  }
+]
