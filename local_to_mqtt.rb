@@ -55,7 +55,7 @@ client.will_payload = 'offline'
 
 # Send config info for the sensors we will publish to MQTT
 client.connect do |c|
-  c.publish('area_weather/status', 'online', retain = false) unless options[:no_send]
+  c.publish('area_weather/status', 'online', retain = true) unless options[:no_send]
   keys_to_collect.each do |key|
     config_payload = {
       "name": key[:mqtt_name],
@@ -114,6 +114,7 @@ begin
     sleep(options[:update_frequency])
   rescue SocketError => e
     error_count += 1
+    # TODO: Should this be shown even if debug is set to false?  Maybe another flag 'silent' that surpresses all output
     puts "#{e.class} - #{e.message} ##{error_count}" if options[:debug]
     raise SocketError, "Too many HTTP errors" if options[:error_limit].positive? && error_count >= options[:error_limit]
     sleep(options[:update_frequency])
