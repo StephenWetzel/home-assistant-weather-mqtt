@@ -4,27 +4,45 @@
     "percentile": 100,
     "unit": "UV index",
     "device_class": "illuminance",
-    "mqtt_name": "area_uv_max"
+    "mqtt_name": "area_uv_max",
+    "expire_after": 600
   },
   {
     "aw_key_name": "uv",
-    "percentile": 90,
+    "percentile": 80,
     "unit": "UV index",
     "device_class": "illuminance",
-    "mqtt_name": "area_uv_90_percentile"
+    "mqtt_name": "area_uv_80_percentile",
+    "expire_after": 600
   },
   {
     "aw_key_name": "uv",
     "percentile": 50,
     "unit": "UV index",
     "device_class": "illuminance",
-    "mqtt_name": "area_uv_median"
+    "mqtt_name": "area_uv_median",
+    "expire_after": 600
   },
   {
     "aw_key_name": "feelsLike",
     "percentile": 50,
     "unit": "°F",
     "device_class": "temperature",
-    "mqtt_name": "area_feels_like_median"
+    "mqtt_name": "area_feels_like_median",
+    "expire_after": 600
+  },
+  {
+    "aw_key_name": "dailyrainin",
+    "percentile": 50,
+    "unit": "in",
+    "mqtt_name": "area_daily_rain_median",
+    "expire_after": 600
+  },
+  {
+    "aw_key_name": "dailyrainin",
+    "percentile": 80,
+    "unit": "in",
+    "mqtt_name": "area_daily_rain_80_percentile",
+    "expire_after": 600
   }
 ]
