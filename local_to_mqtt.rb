@@ -68,6 +68,7 @@ client.connect do |c|
     config_payload[:icon] = key[:icon] unless key[:icon].nil?
     config_payload[:device_class] = key[:device_class] unless key[:device_class].nil?
     config_payload[:unit_of_measurement] = key[:unit] unless key[:unit].nil?
+    config_payload[:expire_after] = key[:expire_after] unless key[:expire_after].nil?
     c.publish("#{options[:discovery_prefix]}/sensor/area_weather/#{key[:mqtt_name]}/config", config_payload.to_json, retain = true) unless options[:no_send]
   end
 end
