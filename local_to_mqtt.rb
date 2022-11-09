@@ -116,11 +116,11 @@ begin
 
     error_count = 0
     sleep(options[:update_frequency])
-  rescue SocketError => e
+  rescue SocketError, Net::ReadTimeout, Net::OpenTimeout => e
     error_count += 1
     # TODO: Should this be shown even if debug is set to false?  Maybe another flag 'silent' that surpresses all output
     puts "#{e.class} - #{e.message} ##{error_count}" if options[:debug]
-    raise SocketError, "Too many HTTP errors" if options[:error_limit].positive? && error_count >= options[:error_limit]
+    raise e, "Too many HTTP errors" if options[:error_limit].positive? && error_count >= options[:error_limit]
     sleep(options[:update_frequency])
   end
 rescue Interrupt => e
