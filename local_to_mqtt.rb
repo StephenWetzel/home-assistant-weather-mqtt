@@ -104,10 +104,12 @@ begin
     # Now that we have all the data in arrays, analyze each array and find the correct percentile value, publish it to MQTT
     client.connect do |c|
       keys_to_collect.each do |key|
-        result = values[key[:aw_key_name]].percentile(key[:percentile]).round(4)
+        result = values[key[:aw_key_name]].percentile(key[:percentile])&.round(4)
         puts "#{key[:mqtt_name]} (#{key[:aw_key_name]}:#{key[:percentile]}, #{values[key[:aw_key_name]].count}) - #{result}" if options[:debug]
-        c.publish("area_weather/#{key[:mqtt_name]}/state", result) unless options[:no_send]
-        c.publish("area_weather/#{key[:mqtt_name]}/attributes", { aw_key_name: key[:aw_key_name], station_count: values[key[:aw_key_name]].count, min_value: values[key[:aw_key_name]].min, max_value: values[key[:aw_key_name]].max }.to_json) unless options[:no_send]
+        unless result.nil? || options[:no_send]
+          c.publish("area_weather/#{key[:mqtt_name]}/state", result)
+          c.publish("area_weather/#{key[:mqtt_name]}/attributes", { aw_key_name: key[:aw_key_name], station_count: values[key[:aw_key_name]].count, min_value: values[key[:aw_key_name]].min, max_value: values[key[:aw_key_name]].max }.to_json)
+        end
       end
     end
 
