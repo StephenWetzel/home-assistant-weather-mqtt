@@ -104,6 +104,7 @@ begin
     # Now that we have all the data in arrays, analyze each array and find the correct percentile value, publish it to MQTT
     client.connect do |c|
       keys_to_collect.each do |key|
+        # TODO: What if there are no values of this type?  Maybe fall back to another type?  Should there be some minimum number required to report it?
         result = values[key[:aw_key_name]].percentile(key[:percentile])&.round(4)
         puts "#{key[:mqtt_name]} (#{key[:aw_key_name]}:#{key[:percentile]}, #{values[key[:aw_key_name]].count}) - #{result}" if options[:debug]
         unless result.nil? || options[:no_send]
