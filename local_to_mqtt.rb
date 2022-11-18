@@ -116,7 +116,7 @@ begin
 
     error_count = 0
     sleep(options[:update_frequency])
-  rescue SocketError, Net::ReadTimeout, Net::OpenTimeout, Timeout::Error => e
+  rescue SocketError, Timeout::Error, JSON::ParserError => e
     error_count += 1
     # TODO: Should this be shown even if debug is set to false?  Maybe another flag 'silent' that surpresses all output
     puts "#{e.class} - #{e.message} ##{error_count}" if options[:debug]
