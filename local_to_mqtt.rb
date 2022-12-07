@@ -119,9 +119,10 @@ begin
   rescue SocketError, Timeout::Error, JSON::ParserError, Errno::EPIPE => e
     error_count += 1
     # TODO: Should this be shown even if debug is set to false?  Maybe another flag 'silent' that surpresses all output
-    puts "#{Time.now} Retrying after error: #{e.class} - #{e.message} ##{error_count}" if options[:debug]
+    puts "#{Time.now} Encountered error: #{e.class} - #{e.message} ##{error_count}" if options[:debug]
     raise e, "Too many HTTP errors" if options[:error_limit].positive? && error_count >= options[:error_limit]
     sleep(options[:update_frequency])
+    puts "Retrying..."
   end
 rescue Interrupt => e
   puts "Interrupt: #{e.class}\n#{e.message}\n#{e.backtrace.join("\n")}" if options[:debug]
