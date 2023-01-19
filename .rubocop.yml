@@ -7,6 +7,22 @@ Layout/LineLength:
 Style/StringLiterals:
   Enabled: false
 
+# I like explicit returns
+Style/RedundantReturn:
+  Enabled: false
+
 # I don't think these are always needed
 Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+# I feel these are too strict by default
+Metrics/PerceivedComplexity:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
   Enabled: false
