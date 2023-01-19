@@ -34,6 +34,38 @@ OptionParser.new do |opts|
   opts.on('-e ERROR_LIMIT', '--error_limit ERROR_LIMIT', Integer, 'How many consecutive HTTP errors before aborting (0 for no limit)') { |v| options[:error_limit] = v }
 end.parse!
 
+def establish_mqtt_connection(options, keys_to_collect)
+  # MQTT Connection
+  puts "Establishing MQTT connection" if options[:debug]
+  client = MQTT::Client.new
+  client.username = ENV['MQTT_USERNAME']
+  client.password = ENV['MQTT_PASSWORD']
+  client.host     = ENV['MQTT_BROKER_HOST']
+  client.will_topic = 'area_weather/status'
+  client.will_payload = 'offline'
+
+  # Send config info for the sensors we will publish to MQTT
+  client.connect do |c|
+    c.publish('area_weather/status', 'online', retain = true) unless options[:no_send]
+    keys_to_collect.each do |key|
+      config_payload = {
+        "name": key[:mqtt_name],
+        "unique_id": "area_weather_#{key[:mqtt_name]}",
+        "availability_topic": "area_weather/status",
+        "state_class": "measurement",
+        "state_topic": "area_weather/#{key[:mqtt_name]}/state",
+        "json_attributes_topic": "area_weather/#{key[:mqtt_name]}/attributes"
+      }
+      config_payload[:icon] = key[:icon] unless key[:icon].nil?
+      config_payload[:device_class] = key[:device_class] unless key[:device_class].nil?
+      config_payload[:unit_of_measurement] = key[:unit] unless key[:unit].nil?
+      config_payload[:expire_after] = key[:expire_after] unless key[:expire_after].nil?
+      c.publish("#{options[:discovery_prefix]}/sensor/area_weather/#{key[:mqtt_name]}/config", config_payload.to_json, retain = true) unless options[:no_send]
+    end
+  end
+  return client
+end
+
 ### Setup ###
 keys_to_collect = JSON.parse(File.read('keys_to_collect.json'), symbolize_names: true)
 # Weather API HTTP connection
@@ -45,35 +77,8 @@ uri = URI(url)
 http = Net::HTTP.new(uri.host, uri.port)
 http.use_ssl = true
 
-# MQTT Connection
-client = MQTT::Client.new
-client.username = ENV['MQTT_USERNAME']
-client.password = ENV['MQTT_PASSWORD']
-client.host     = ENV['MQTT_BROKER_HOST']
-client.will_topic = 'area_weather/status'
-client.will_payload = 'offline'
-
-# Send config info for the sensors we will publish to MQTT
-client.connect do |c|
-  c.publish('area_weather/status', 'online', retain = true) unless options[:no_send]
-  keys_to_collect.each do |key|
-    config_payload = {
-      "name": key[:mqtt_name],
-      "unique_id": "area_weather_#{key[:mqtt_name]}",
-      "availability_topic": "area_weather/status",
-      "state_class": "measurement",
-      "state_topic": "area_weather/#{key[:mqtt_name]}/state",
-      "json_attributes_topic": "area_weather/#{key[:mqtt_name]}/attributes"
-    }
-    config_payload[:icon] = key[:icon] unless key[:icon].nil?
-    config_payload[:device_class] = key[:device_class] unless key[:device_class].nil?
-    config_payload[:unit_of_measurement] = key[:unit] unless key[:unit].nil?
-    config_payload[:expire_after] = key[:expire_after] unless key[:expire_after].nil?
-    c.publish("#{options[:discovery_prefix]}/sensor/area_weather/#{key[:mqtt_name]}/config", config_payload.to_json, retain = true) unless options[:no_send]
-  end
-end
-
 error_count = 0
+client = establish_mqtt_connection(options, keys_to_collect)
 
 ### Main Loop ###
 begin
@@ -123,6 +128,7 @@ begin
     raise e, "Too many HTTP errors" if options[:error_limit].positive? && error_count >= options[:error_limit]
     sleep(options[:update_frequency])
     puts "Retrying..."
+    client = establish_mqtt_connection(options, keys_to_collect)
   end
 rescue Interrupt => e
   puts "Interrupt: #{e.class}\n#{e.message}\n#{e.backtrace.join("\n")}" if options[:debug]
