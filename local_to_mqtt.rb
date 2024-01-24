@@ -20,7 +20,7 @@ options = {
   discovery_prefix: 'homeassistant',
   debug: false,
   no_send: false,
-  error_limit: 3
+  error_limit: 10
 }
 OptionParser.new do |opts|
   opts.banner = "Usage: local_to_mqtt.rb [options]"
