@@ -52,5 +52,21 @@
     "device_class": "pm25",
     "mqtt_name": "area_pm25_median",
     "expire_after": 600
+  },
+  {
+    "aw_key_name": "solarradiation",
+    "percentile": 80,
+    "unit": "W/m^2",
+    "device_class": "illuminance",
+    "mqtt_name": "area_light_80_percentile",
+    "expire_after": 600
+  },
+  {
+    "aw_key_name": "solarradiation",
+    "percentile": 50,
+    "unit": "W/m^2",
+    "device_class": "illuminance",
+    "mqtt_name": "area_light_50_percentile",
+    "expire_after": 600
   }
 ]
