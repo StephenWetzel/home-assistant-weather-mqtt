@@ -20,7 +20,9 @@ options = {
   discovery_prefix: 'homeassistant',
   debug: false,
   no_send: false,
-  error_limit: 10
+  error_limit: 10,
+  sleep_and_retry_limit: 5,
+  sleep_and_retry_timeout: 60 * 30
 }
 OptionParser.new do |opts|
   opts.banner = "Usage: local_to_mqtt.rb [options]"
@@ -32,6 +34,8 @@ OptionParser.new do |opts|
   opts.on('-d [FLAG]', '--debug [FLAG]', TrueClass, 'Set to true to print debug logs to console while running') { |v| options[:debug] = v.nil? ? true : v }
   opts.on('-n [FLAG]', '--no_send [FLAG]', TrueClass, 'Set to true to prevent sending data to MQTT') { |v| options[:no_send] = v.nil? ? true : v }
   opts.on('-e ERROR_LIMIT', '--error_limit ERROR_LIMIT', Integer, 'How many consecutive HTTP errors before aborting (0 for no limit)') { |v| options[:error_limit] = v }
+  opts.on('-r RETRY_LIMIT', '--sleep_and_retry_limit RETRY_LIMIT', Integer, 'When the error limit is reached, will wait and start trying again, for this many times') { |v| options[:sleep_and_retry_limit] = v }
+  opts.on('-t RETRY_TIMEOUT', '--sleep_and_retry_timeout RETRY_TIMEOUT', Integer, 'How long to sleep between attempts to retry') { |v| options[:sleep_and_retry_timeout] = v }
 end.parse!
 
 def establish_mqtt_connection(options, keys_to_collect)
@@ -78,6 +82,7 @@ http = Net::HTTP.new(uri.host, uri.port)
 http.use_ssl = true
 
 error_count = 0
+sleep_and_retry_count = 0
 client = establish_mqtt_connection(options, keys_to_collect)
 
 ### Main Loop ###
@@ -119,14 +124,22 @@ begin
       end
     end
 
+    # We were successful, so reset error counters
     error_count = 0
+    sleep_and_retry_count = 0
     sleep(options[:update_frequency])
   rescue SocketError, Timeout::Error, JSON::ParserError, Errno::EPIPE, Errno::ENETUNREACH, Errno::ECONNRESET, Net::ReadTimeout, Zlib::DataError => e
     error_count += 1
-    # TODO: Should this be shown even if debug is set to false?  Maybe another flag 'silent' that suppresses all output
     puts "#{Time.now} Encountered error: #{e.class} - #{e.message} ##{error_count}" if options[:debug]
-    raise e, "Too many HTTP errors" if options[:error_limit].positive? && error_count >= options[:error_limit]
-    sleep(options[:update_frequency])
+    if options[:error_limit].positive? && error_count > options[:error_limit]
+      puts "#{Time.now} Encountered error: #{e.class} - #{e.message} ##{error_count}" # Showing error even if debug is false
+      sleep_and_retry_count += 1
+      error_count = 0
+      raise e, "Too many HTTP errors" if sleep_and_retry_count > options[:sleep_and_retry_limit]
+      puts "Reached error limit, sleeping for #{options[:sleep_and_retry_timeout]} seconds and then trying again..."
+      sleep(options[:sleep_and_retry_timeout])
+    end
+    sleep(options[:update_frequency] * error_count)
     puts "Retrying..."
   end
 rescue Interrupt => e
