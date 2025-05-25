@@ -3,7 +3,6 @@
     "aw_key_name": "uv",
     "percentile": 100,
     "unit": "UV index",
-    "device_class": "illuminance",
     "mqtt_name": "area_uv_max",
     "expire_after": 600
   },
@@ -11,7 +10,6 @@
     "aw_key_name": "uv",
     "percentile": 80,
     "unit": "UV index",
-    "device_class": "illuminance",
     "mqtt_name": "area_uv_80_percentile",
     "expire_after": 600
   },
@@ -19,7 +17,6 @@
     "aw_key_name": "uv",
     "percentile": 50,
     "unit": "UV index",
-    "device_class": "illuminance",
     "mqtt_name": "area_uv_median",
     "expire_after": 600
   },
@@ -48,7 +45,7 @@
   {
     "aw_key_name": "pm25",
     "percentile": 50,
-    "unit": "µg/m^3",
+    "unit": "µg/m³",
     "device_class": "pm25",
     "mqtt_name": "area_pm25_median",
     "expire_after": 600
@@ -56,16 +53,16 @@
   {
     "aw_key_name": "solarradiation",
     "percentile": 80,
-    "unit": "W/m^2",
-    "device_class": "illuminance",
+    "unit": "W/m²",
+    "device_class": "irradiance",
     "mqtt_name": "area_light_80_percentile",
     "expire_after": 600
   },
   {
     "aw_key_name": "solarradiation",
     "percentile": 50,
-    "unit": "W/m^2",
-    "device_class": "illuminance",
+    "unit": "W/m²",
+    "device_class": "irradiance",
     "mqtt_name": "area_light_50_percentile",
     "expire_after": 600
   }
