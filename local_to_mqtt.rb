@@ -128,7 +128,6 @@ begin
     raise e, "Too many HTTP errors" if options[:error_limit].positive? && error_count >= options[:error_limit]
     sleep(options[:update_frequency])
     puts "Retrying..."
-    client = establish_mqtt_connection(options, keys_to_collect)
   end
 rescue Interrupt => e
   puts "Interrupt: #{e.class}\n#{e.message}\n#{e.backtrace.join("\n")}" if options[:debug]
