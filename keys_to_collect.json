@@ -36,6 +36,13 @@
     "expire_after": 600
   },
   {
+    "aw_key_name": "hourlyrainin",
+    "percentile": 80,
+    "unit": "in",
+    "mqtt_name": "area_hourly_rain_80_percentile",
+    "expire_after": 600
+  },
+  {
     "aw_key_name": "dailyrainin",
     "percentile": 50,
     "unit": "in",
