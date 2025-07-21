@@ -31,14 +31,16 @@
   {
     "aw_key_name": "hourlyrainin",
     "percentile": 50,
-    "unit": "in",
+    "unit": "in/h",
+    "device_class": "precipitation_intensity",
     "mqtt_name": "area_hourly_rain_median",
     "expire_after": 600
   },
   {
     "aw_key_name": "hourlyrainin",
     "percentile": 80,
-    "unit": "in",
+    "unit": "in/h",
+    "device_class": "precipitation_intensity",
     "mqtt_name": "area_hourly_rain_80_percentile",
     "expire_after": 600
   },
